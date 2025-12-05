@@ -8,7 +8,14 @@ WORKDIR /app
 COPY requirements.txt /app/
 
 # Install dependencies
-RUN pip install --upgrade pip     && pip install -r requirements.txt
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Your existing install command
+RUN pip install --upgrade pip && pip install -r requirements.txt --no-cache-dir
 
 # Copy the rest of the application code
 COPY . /app
