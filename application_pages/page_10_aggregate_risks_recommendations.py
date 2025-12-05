@@ -4,8 +4,10 @@ import pandas as pd
 import numpy as np
 from utils import aggregate_and_visualize_risks, generate_hitl_recommendations, sid
 
+
 def main():
-    st.markdown("### Story: Aggregating and Visualizing Comprehensive Risk Findings")
+    st.markdown(
+        "### Story: Aggregating and Visualizing Comprehensive Risk Findings")
     st.markdown(
         """
         As a **Risk Manager**, you need a consolidated and clear view of all identified risks across the LLM summarization process. 
@@ -20,7 +22,8 @@ def main():
 
     # Pre-checks for necessary data from previous steps
     if not all('fact_assessment' in d for d in st.session_state.data.values()):
-        st.warning("Please complete the 'Factual Accuracy Assessment' page first.")
+        st.warning(
+            "Please complete the 'Factual Accuracy Assessment' page first.")
         return
     if 'confidence_correlation' not in st.session_state:
         st.warning("Please complete the 'Confidence vs. Accuracy' page first.")
@@ -46,12 +49,12 @@ def main():
     if st.button("Aggregate All Risks", key="aggregate_risks_btn"):
         with st.spinner("Aggregating and visualizing risks..."):
             # Recalculate overall_risk_summary to ensure it includes all fields needed for generate_hitl_recommendations
-            st.session_state.overall_risk_summary = aggregate_and_visualize_risks(st.session_state.data, st.session_state.confidence_correlation)
+            st.session_state.overall_risk_summary = aggregate_and_visualize_risks(
+                st.session_state.data, st.session_state.confidence_correlation)
             st.success("Risk aggregation and visualization complete!")
-            st.session_state.current_step = 10 # Move to next logical step
-            st.rerun()
 
-    if st.session_state.current_step >= 10 and 'overall_risk_summary' in st.session_state:
+    # Show results if risks have been aggregated
+    if 'overall_risk_summary' in st.session_state:
         st.markdown("### Aggregated LLM Risk Assessment Findings")
         st.markdown(
             """
@@ -62,18 +65,26 @@ def main():
         )
 
         col1, col2, col3 = st.columns(3)
-        col1.metric("Overall Avg Factual Accuracy", f"{st.session_state.overall_risk_summary.get('avg_factual_accuracy', 0):.2f}")
-        col2.metric("Overall Avg LLM Confidence-Accuracy Correlation", f"{st.session_state.overall_risk_summary.get('avg_confidence_accuracy_corr', 0):.2f}")
-        col3.metric("Overall Avg Sentiment Discrepancy", f"{st.session_state.overall_risk_summary.get('avg_sentiment_discrepancy', 0):.2f}")
+        col1.metric("Overall Avg Factual Accuracy",
+                    f"{st.session_state.overall_risk_summary.get('avg_factual_accuracy', 0):.2f}")
+        col2.metric("Overall Avg LLM Confidence-Accuracy Correlation",
+                    f"{st.session_state.overall_risk_summary.get('avg_confidence_accuracy_corr', 0):.2f}")
+        col3.metric("Overall Avg Sentiment Discrepancy",
+                    f"{st.session_state.overall_risk_summary.get('avg_sentiment_discrepancy', 0):.2f}")
 
         col4, col5, col6, col7 = st.columns(4)
-        col4.metric("Total Hallucinated Facts", st.session_state.overall_risk_summary.get('total_hallucinated_facts', 0))
-        col5.metric("Total Missing Facts", st.session_state.overall_risk_summary.get('total_missing_facts', 0))
-        col6.metric("Total Detected Contradictions", st.session_state.overall_risk_summary.get('total_contradictions', 0))
-        col7.metric("Total Adversarial Failures", st.session_state.overall_risk_summary.get('total_adversarial_failures', 0))
+        col4.metric("Total Hallucinated Facts", st.session_state.overall_risk_summary.get(
+            'total_hallucinated_facts', 0))
+        col5.metric("Total Missing Facts", st.session_state.overall_risk_summary.get(
+            'total_missing_facts', 0))
+        col6.metric("Total Detected Contradictions",
+                    st.session_state.overall_risk_summary.get('total_contradictions', 0))
+        col7.metric("Total Adversarial Failures", st.session_state.overall_risk_summary.get(
+            'total_adversarial_failures', 0))
 
         st.markdown("---")
-        st.markdown("### Story: Recommendations for Human-in-the-Loop (HITL) and Governance")
+        st.markdown(
+            "### Story: Recommendations for Human-in-the-Loop (HITL) and Governance")
         st.markdown(
             """
             Based on the identified risks—hallucinations, biases, and confidence misalignments—it is imperative to design robust 'Human-in-the-Loop (HITL)' checkpoints and governance structures. 
@@ -90,60 +101,69 @@ def main():
             """
         )
 
-        st.subheader("7. Configure Recommendation Thresholds")
-        # Initialize sliders in session_state if not present
-        if 'acc_thresh_slider' not in st.session_state:
-            st.session_state.acc_thresh_slider = 95
-        if 'sentiment_discrepancy_thresh_slider' not in st.session_state:
-            st.session_state.sentiment_discrepancy_thresh_slider = 0.1
-        if 'adv_failure_limit_input' not in st.session_state:
-            st.session_state.adv_failure_limit_input = 0
+        # Only show recommendation generation if risks have been aggregated and all required keys exist
+        if 'overall_risk_summary' in st.session_state and all(key in st.session_state.overall_risk_summary for key in ['avg_factual_accuracy', 'total_contradictions', 'avg_sentiment_discrepancy', 'total_adversarial_failures', 'avg_confidence_accuracy_corr']):
+            st.subheader("7. Configure Recommendation Thresholds")
+            # Initialize sliders in session_state if not present
+            if 'acc_thresh_slider' not in st.session_state:
+                st.session_state.acc_thresh_slider = 95
+            if 'sentiment_discrepancy_thresh_slider' not in st.session_state:
+                st.session_state.sentiment_discrepancy_thresh_slider = 0.1
+            if 'adv_failure_limit_input' not in st.session_state:
+                st.session_state.adv_failure_limit_input = 0
 
-        acc_thresh_input = st.slider(
-            "Min Acceptable Factual Accuracy (%)",
-            min_value=0,
-            max_value=100,
-            value=st.session_state.acc_thresh_slider,
-            step=1,
-            key="acc_thresh_slider"
-        ) / 100.0 # Convert to a ratio for the function
-        
-        sentiment_disp_thresh_input = st.slider(
-            "Max Acceptable Sentiment Discrepancy (Abs. Score)",
-            min_value=0.0,
-            max_value=1.0,
-            value=st.session_state.sentiment_discrepancy_thresh_slider,
-            step=0.05,
-            key="sentiment_discrepancy_thresh_slider"
-        )
-        adv_fail_limit_input = st.number_input(
-            "Max Acceptable Adversarial Failures",
-            min_value=0,
-            value=st.session_state.adv_failure_limit_input,
-            step=1,
-            key="adv_failure_limit_input"
-        )
+            acc_thresh_input = st.slider(
+                "Min Acceptable Factual Accuracy (%)",
+                min_value=0,
+                max_value=100,
+                value=st.session_state.acc_thresh_slider,
+                step=1,
+                key="acc_thresh_slider"
+            ) / 100.0  # Convert to a ratio for the function
 
-        if st.button("Generate HITL & Governance Recommendations", key="gen_rec_btn"):
-            with st.spinner("Generating recommendations..."):
-                st.session_state.recommendations = generate_hitl_recommendations(
-                    st.session_state.overall_risk_summary,
-                    accuracy_threshold=acc_thresh_input,
-                    sentiment_discrepancy_threshold=sentiment_disp_thresh_input,
-                    adversarial_failure_limit=adv_fail_limit_input
-                )
-                st.success("Recommendations generated!")
-                st.session_state.current_step = 11 # Move to final step
-                st.rerun()
+            sentiment_disp_thresh_input = st.slider(
+                "Max Acceptable Sentiment Discrepancy (Abs. Score)",
+                min_value=0.0,
+                max_value=1.0,
+                value=st.session_state.sentiment_discrepancy_thresh_slider,
+                step=0.05,
+                key="sentiment_discrepancy_thresh_slider"
+            )
+            adv_fail_limit_input = st.number_input(
+                "Max Acceptable Adversarial Failures",
+                min_value=0,
+                value=st.session_state.adv_failure_limit_input,
+                step=1,
+                key="adv_failure_limit_input"
+            )
 
-        if st.session_state.current_step >= 11 and 'recommendations' in st.session_state:
-            st.markdown("### Key Recommendations for Human-in-the-Loop & Governance")
-            st.markdown(
-                """
+            if st.button("Generate HITL & Governance Recommendations", key="gen_rec_btn"):
+                with st.spinner("Generating recommendations..."):
+                    st.session_state.recommendations = generate_hitl_recommendations(
+                        st.session_state.overall_risk_summary,
+                        accuracy_threshold=acc_thresh_input,
+                        sentiment_discrepancy_threshold=sentiment_disp_thresh_input,
+                        adversarial_failure_limit=adv_fail_limit_input
+                    )
+                    st.success("Recommendations generated!")
+        else:
+            st.info(
+                "Please click 'Aggregate All Risks' above to proceed with generating recommendations.")
+
+    # Show recommendations if they have been generated (outside the overall_risk_summary check)
+    if 'recommendations' in st.session_state:
+        st.markdown(
+            "### Key Recommendations for Human-in-the-Loop & Governance")
+        st.markdown(
+            """
                 These concrete recommendations outline practical steps for integrating human oversight, audit mechanisms, and continuous monitoring into the LLM deployment lifecycle. 
                 As a Risk Manager, presenting these findings ensures that while AI enhances efficiency, critical decisions remain informed by human expertise and accountability, upholding our commitment to responsible AI.
                 """
-            )
-            for i, rec in enumerate(st.session_state.recommendations):
-                st.markdown(f"{i+1}. {rec}")
+        )
+        for i, rec in enumerate(st.session_state.recommendations):
+            st.markdown(f"{i+1}. {rec}")
 
+        st.markdown("---")
+        if st.button("Next: Go to Final Risk Assessment Report", key="next_page_10", type="primary"):
+            st.session_state.current_step = 10
+            st.rerun()

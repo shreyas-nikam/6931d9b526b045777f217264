@@ -2,6 +2,7 @@
 import streamlit as st
 from utils import generate_risk_assessment_report_summary
 
+
 def main():
     st.markdown("### Story: Finalizing the LLM Risk Assessment Report")
     st.markdown(
@@ -14,13 +15,15 @@ def main():
     if 'data' not in st.session_state or not st.session_state.data:
         st.warning("Please load data in the 'Welcome & Setup' page first.")
         return
-    
+
     if 'recommendations' not in st.session_state or not st.session_state.recommendations:
-        st.warning("Please generate recommendations in the 'Aggregate Risks & Recommendations' page first.")
+        st.warning(
+            "Please generate recommendations in the 'Aggregate Risks & Recommendations' page first.")
         return
-    
+
     if 'overall_risk_summary' not in st.session_state or not st.session_state.overall_risk_summary:
-        st.warning("Please aggregate risks in the 'Aggregate Risks & Recommendations' page first.")
+        st.warning(
+            "Please aggregate risks in the 'Aggregate Risks & Recommendations' page first.")
         return
 
     st.markdown("### How this page helps you (Final Report Generation)")
@@ -40,10 +43,9 @@ def main():
                 st.session_state.overall_risk_summary
             )
             st.success("Final report compiled!")
-            st.session_state.current_step = 12 # Final step
-            st.rerun()
 
-    if st.session_state.current_step >= 12 and 'final_risk_assessment_report' in st.session_state:
+    # Show final report if it has been generated
+    if 'final_risk_assessment_report' in st.session_state:
         st.markdown("### LLM Risk Assessment Report")
         st.markdown(
             """

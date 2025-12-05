@@ -1,0 +1,7 @@
+doc_id,fact_key,fact_value
+doc_001,Q1 earnings,$150M
+doc_001,market share increase,5%
+doc_002,Q3 revenues,$80M
+doc_002,partner,SecureNet
+doc_003,Q2 profits,$20M
+doc_003,profit drop,25%

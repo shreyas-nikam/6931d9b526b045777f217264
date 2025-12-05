@@ -3,22 +3,26 @@ import streamlit as st
 import pandas as pd
 from utils import analyze_sentiment_bias
 
+
 def main():
-    st.markdown("### Story: Bias Detection: Analyzing Sentiment Skew Across Categories")
+    st.markdown(
+        "### Story: Bias Detection: Analyzing Sentiment Skew Across Categories")
     st.markdown(
         """
         Financial markets are highly sensitive to sentiment. Biases in LLM-generated summaries, such as consistently portraying certain industries more positively or negatively, can introduce distortions. 
         As a **Quantitative Analyst** (or Risk Manager overseeing this aspect), you need to detect if the LLM amplifies or introduces sentiment biases.
         """
     )
-    st.markdown("We define the sentiment discrepancy for a document $i$ as $SD_i = |S_{LLM,i} - S_{GT,i}|$, where $S_{LLM,i}$ is the LLM's sentiment score and $S_{GT,i}$ is the ground truth sentiment score.")
+    st.markdown(
+        "We define the sentiment discrepancy for a document $i$ as $SD_i = |S_{LLM,i} - S_{GT,i}|$, where $S_{LLM,i}$ is the LLM's sentiment score and $S_{GT,i}$ is the ground truth sentiment score.")
 
     if 'data' not in st.session_state or not st.session_state.data:
         st.warning("Please load data in the 'Welcome & Setup' page first.")
         return
-    
+
     if not all('llm_summary_baseline' in d for d in st.session_state.data.values()):
-        st.warning("Please generate baseline summaries in the 'Baseline LLM Summaries' page first.")
+        st.warning(
+            "Please generate baseline summaries in the 'Baseline LLM Summaries' page first.")
         return
 
     st.markdown("### How this page helps you (Sentiment Bias Analysis)")
@@ -39,18 +43,19 @@ def main():
         "Categorize by:",
         options=["industry", "company"],
         key="sentiment_category_selector",
-        index=["industry", "company"].index(st.session_state.sentiment_category_selector)
+        index=["industry", "company"].index(
+            st.session_state.sentiment_category_selector)
     )
 
     if st.button("Analyze Sentiment Bias", key="analyze_sentiment_btn"):
         with st.spinner("Analyzing sentiment bias..."):
-            st.session_state.sentiment_bias_by_category_df, fig = analyze_sentiment_bias(st.session_state.data, sentiment_category)
-            st.session_state.fig_sentiment_bias = fig # Store the figure in session state
+            st.session_state.sentiment_bias_by_category_df, fig = analyze_sentiment_bias(
+                st.session_state.data, sentiment_category)
+            st.session_state.fig_sentiment_bias = fig  # Store the figure in session state
             st.success("Sentiment bias analysis complete!")
-            st.session_state.current_step = 6 # Move to next logical step
-            st.rerun()
 
-    if st.session_state.current_step >= 6 and 'sentiment_bias_by_category_df' in st.session_state:
+    # Show results if sentiment bias analysis has been performed
+    if 'sentiment_bias_by_category_df' in st.session_state:
         st.markdown("### Sentiment Bias Analysis Results")
         st.markdown(
             """
@@ -64,6 +69,11 @@ def main():
             st.pyplot(st.session_state.fig_sentiment_bias)
         else:
             st.info("Click 'Analyze Sentiment Bias' to see the plot.")
-        
+
         st.dataframe(st.session_state.sentiment_bias_by_category_df)
         st.markdown("Analyzing sentiment skew helps us identify if the LLM introduces or amplifies biases related to specific industries. Discrepancies between LLM and ground truth sentiment, especially if consistent across a category, signal a 'disparate impact' risk. This suggests the LLM might be subtly influencing perception, which could lead to skewed investment recommendations.")
+
+        st.markdown("---")
+        if st.button("Next: Go to Entity Framing Analysis", key="next_page_6", type="primary"):
+            st.session_state.current_step = 6
+            st.rerun()

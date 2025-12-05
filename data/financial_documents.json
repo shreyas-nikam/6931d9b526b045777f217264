@@ -1,0 +1,20 @@
+{
+    "doc_001": {
+        "company": "GlobalBank Inc.",
+        "industry": "Banking",
+        "sentiment_tag": "positive",
+        "text": "GlobalBank Inc. announced record Q1 earnings of $150M, exceeding analyst expectations by 10%. This was driven by a 15% growth in digital services and a strategic acquisition of Fintech Solutions Ltd., set to boost market share by 5%. The CEO, Jane Doe, highlighted robust performance in all key segments. Competitor, LocalCredit Corp, reported stagnant growth."
+    },
+    "doc_002": {
+        "company": "TechInnovate Solutions",
+        "industry": "Technology",
+        "sentiment_tag": "neutral",
+        "text": "TechInnovate Solutions reported Q3 revenues of $80M, matching forecasts. The company is dealing with heightened competition in cloud computing and has formed a new cybersecurity partnership with SecureNet. The CFO, John Smith, mentioned a potential capital expenditure increase for next quarter. The market is waiting for news on their new AI initiative."
+    },
+    "doc_003": {
+        "company": "GreenEnergy Corp.",
+        "industry": "Renewable Energy",
+        "sentiment_tag": "negative",
+        "text": "GreenEnergy Corp. saw Q2 profits decline to $20M, a 25% drop year-over-year. This was mainly due to increased raw material costs and delays in government project approvals. The company anticipates recovery in the second half of the year."
+    }
+}

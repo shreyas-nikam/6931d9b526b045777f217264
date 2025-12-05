@@ -1,20 +1,55 @@
-This page provides the crucial opportunity to implement **prompt engineering** based on your insights from the preceding risk assessments. 
+
+import streamlit as st
+import pandas as pd
+from utils import refine_and_retest_prompts, sid
+
+
+def main():
+    st.markdown(
+        "### Story: Prompt Engineering - Iterative Risk Mitigation Through Prompt Refinement")
+    st.markdown(
+        """
+        After thoroughly assessing the LLM's baseline performance, identifying hallucinations, contradictions, biases, and adversarial vulnerabilities, 
+        you now have actionable insights to improve the LLM's behavior. As a **Risk Manager**, your next critical step is to implement **prompt engineering** 
+        as a mitigation strategy to reduce these identified risks.
+        """
+    )
+    st.markdown(
+        """
+        This page provides the crucial opportunity to implement **prompt engineering** based on your insights from the preceding risk assessments. 
         You will craft a more precise and restrictive prompt, and then re-evaluate the LLM's performance on a selected document. 
         As a Risk Manager, this demonstrates the iterative process of mitigating AI risks: identifying vulnerabilities, designing corrective interventions (like improved prompts), and then quantifying the resulting improvements in factual accuracy and bias reduction. 
         This hands-on refinement solidifies your understanding of how to guide LLM behavior for trustworthy outcomes.
         """
     )
 
+    if 'data' not in st.session_state or not st.session_state.data:
+        st.warning("Please load data in the 'Welcome & Setup' page first.")
+        return
+
+    st.markdown("### How this page helps you (Prompt Refinement)")
+    st.markdown(
+        """
+        As a Risk Manager, this page allows you to directly test and validate the effectiveness of prompt engineering as a risk mitigation technique. 
+        You can modify the prompt to add constraints (e.g., "avoid speculation", "stick to factual data only", "maintain neutral tone") 
+        and immediately observe the quantitative impact on factual accuracy and sentiment bias. 
+        This empirical validation is essential for making informed decisions about how to deploy and govern LLMs in production environments, 
+        ensuring that AI outputs meet your organization's standards for accuracy and fairness.
+        """
+    )
+
     st.subheader("6. Refine Prompt and Retest")
     # Initialize retest_doc_selector in session_state if not present
     if 'retest_doc_selector' not in st.session_state:
-        st.session_state.retest_doc_selector = 'doc_003' if 'doc_003' in st.session_state.data else (list(st.session_state.data.keys())[0] if st.session_state.data else None)
+        st.session_state.retest_doc_selector = 'doc_003' if 'doc_003' in st.session_state.data else (
+            list(st.session_state.data.keys())[0] if st.session_state.data else None)
 
     retest_doc_id = st.selectbox(
         "Select a document for prompt refinement retest:",
         options=list(st.session_state.data.keys()),
         key="retest_doc_selector",
-        index=list(st.session_state.data.keys()).index(st.session_state.retest_doc_selector) if st.session_state.retest_doc_selector in st.session_state.data else 0
+        index=list(st.session_state.data.keys()).index(
+            st.session_state.retest_doc_selector) if st.session_state.retest_doc_selector in st.session_state.data else 0
     )
 
     if 'refined_prompt_input' not in st.session_state:
@@ -36,17 +71,17 @@ This page provides the crucial opportunity to implement **prompt engineering** b
                     refined_prompt,
                     doc_data['ground_truth_summary'],
                     doc_data['ground_truth_facts'],
-                    doc_id_for_simulation=retest_doc_id # Pass for specific simulation
+                    doc_id_for_simulation=retest_doc_id  # Pass for specific simulation
                 )
                 st.session_state.data[retest_doc_id]['refined_prompt_results'] = retest_results
                 st.success("Prompt refined and retested successfully!")
-                st.session_state.current_step = 9 # Move to next logical step
-                st.rerun()
         else:
             st.error("Please select a valid document for retesting.")
 
-    if st.session_state.current_step >= 9 and retest_doc_id and 'refined_prompt_results' in st.session_state.data.get(retest_doc_id, {}):
-        st.markdown(f"### Retest Results with Refined Prompt for {retest_doc_id}")
+    # Show results if prompt refinement has been performed for the selected document
+    if retest_doc_id and 'refined_prompt_results' in st.session_state.data.get(retest_doc_id, {}):
+        st.markdown(
+            f"### Retest Results with Refined Prompt for {retest_doc_id}")
         st.markdown(
             """
             The comparison below showcases the impact of your refined prompt on the LLM's performance for the selected document. 
@@ -60,14 +95,20 @@ This page provides the crucial opportunity to implement **prompt engineering** b
         # Ensure baseline values exist before trying to access them
         baseline_facts = doc_data['fact_assessment']['accuracy_score'] if 'fact_assessment' in doc_data else 0.0
         baseline_llm_summary = doc_data.get('llm_summary_baseline', '')
-        baseline_ground_truth_summary = doc_data.get('ground_truth_summary', '')
-        
-        baseline_sentiment_compound = sid.polarity_scores(baseline_llm_summary)['compound']
-        baseline_sentiment_gt_compound = sid.polarity_scores(baseline_ground_truth_summary)['compound']
-        baseline_sentiment_discrepancy = abs(baseline_sentiment_compound - baseline_sentiment_gt_compound)
+        baseline_ground_truth_summary = doc_data.get(
+            'ground_truth_summary', '')
 
-        st.markdown(f"**New LLM Summary (Refined):**\n{retest_results['llm_summary_refined']}\n")
-        st.markdown(f"**New LLM Confidence:** {retest_results['llm_confidence_refined']:.2f}")
+        baseline_sentiment_compound = sid.polarity_scores(baseline_llm_summary)[
+            'compound']
+        baseline_sentiment_gt_compound = sid.polarity_scores(
+            baseline_ground_truth_summary)['compound']
+        baseline_sentiment_discrepancy = abs(
+            baseline_sentiment_compound - baseline_sentiment_gt_compound)
+
+        st.markdown(
+            f"**New LLM Summary (Refined):**\n{retest_results['llm_summary_refined']}\n")
+        st.markdown(
+            f"**New LLM Confidence:** {retest_results['llm_confidence_refined']:.2f}")
 
         comparison_df = pd.DataFrame({
             'Metric': ['Factual Accuracy Score', 'Sentiment Discrepancy'],
@@ -77,3 +118,8 @@ This page provides the crucial opportunity to implement **prompt engineering** b
         st.table(comparison_df)
 
         st.markdown("The iterative process of prompt engineering demonstrably improves the LLM's output quality. By providing clearer instructions, we observe an improvement in factual accuracy and potentially reduced sentiment discrepancy, showcasing the effectiveness of targeted prompt design.")
+
+        st.markdown("---")
+        if st.button("Next: Go to Aggregate Risks & Recommendations", key="next_page_9", type="primary"):
+            st.session_state.current_step = 9
+            st.rerun()

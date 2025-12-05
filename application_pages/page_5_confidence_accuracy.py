@@ -3,10 +3,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from utils import evaluate_confidence_accuracy_correlation
-import matplotlib.pyplot as plt # Import for st.pyplot
+import matplotlib.pyplot as plt  # Import for st.pyplot
+
 
 def main():
-    st.markdown("### Story: Quantifying Uncertainty: Aligning LLM Confidence with Accuracy")
+    st.markdown(
+        "### Story: Quantifying Uncertainty: Aligning LLM Confidence with Accuracy")
     st.markdown(
         """
         As a **Risk Manager**, you want to assess if the LLM's reported confidence is actually indicative of factual accuracy. 
@@ -15,18 +17,21 @@ def main():
         """
     )
     st.markdown("We will calculate the Pearson correlation coefficient $r$ between the LLM's confidence scores ($X$) and the factual accuracy scores ($Y$) for each document:")
-    st.markdown(r"$$ r = \frac{\sum_{i=1}^{N} (X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{N} (X_i - \bar{X})^2 \sum_{i=1}^{N} (Y_i - \bar{Y})^2}} $$")
+    st.markdown(
+        r"$$ r = \frac{\sum_{i=1}^{N} (X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{N} (X_i - \bar{X})^2 \sum_{i=1}^{N} (Y_i - \bar{Y})^2}} $$")
 
     if 'data' not in st.session_state or not st.session_state.data:
         st.warning("Please load data in the 'Welcome & Setup' page first.")
         return
-    
+
     # Check if fact assessment has been done for all documents
     if not all('fact_assessment' in d for d in st.session_state.data.values()):
-        st.warning("Please complete the 'Factual Accuracy Assessment' page first to generate accuracy scores.")
+        st.warning(
+            "Please complete the 'Factual Accuracy Assessment' page first to generate accuracy scores.")
         return
 
-    st.markdown("### How this page helps you (Confidence vs. Accuracy Evaluation)")
+    st.markdown(
+        "### How this page helps you (Confidence vs. Accuracy Evaluation)")
     st.markdown(
         """
         This step directly helps you quantify the trustworthiness of the LLM's self-assessment. 
@@ -38,12 +43,13 @@ def main():
 
     if st.button("Evaluate Confidence-Accuracy Correlation", key="eval_corr_btn"):
         with st.spinner("Calculating correlation and generating plot..."):
-            st.session_state.confidence_evaluation_df, st.session_state.confidence_correlation, fig = evaluate_confidence_accuracy_correlation(st.session_state.data)
+            st.session_state.confidence_evaluation_df, st.session_state.confidence_correlation, fig = evaluate_confidence_accuracy_correlation(
+                st.session_state.data)
+            st.session_state.fig_confidence_accuracy = fig
             st.success("Confidence-accuracy correlation evaluated!")
-            st.session_state.current_step = 5 # Move to next logical step
-            st.rerun()
 
-    if st.session_state.current_step >= 5 and 'confidence_correlation' in st.session_state:
+    # Show results if confidence correlation has been calculated
+    if 'confidence_correlation' in st.session_state:
         st.markdown("### Confidence-Accuracy Correlation Results")
         st.markdown(
             """
@@ -52,7 +58,15 @@ def main():
             The red dashed line indicates a minimum acceptable accuracy threshold, helping to identify summaries that are both low confidence and low accuracy.
             """
         )
-        st.pyplot(st.session_state.fig_confidence_accuracy if 'fig_confidence_accuracy' in st.session_state else plt.figure())
-        # Re-generate the plot to display it consistently. The function evaluate_confidence_accuracy_correlation returns the figure, so we need to store it in session state. 
-        # Or, just call the function again and display the fig.
-        # Given the instruction 
+        st.pyplot(
+            st.session_state.fig_confidence_accuracy if 'fig_confidence_accuracy' in st.session_state else plt.figure())
+
+        st.markdown(
+            f"**Confidence-Accuracy Correlation (Pearson r):** {st.session_state.confidence_correlation:.2f}")
+        st.markdown(
+            "A higher correlation indicates that the LLM's confidence scores are a reliable indicator of factual accuracy.")
+
+        st.markdown("---")
+        if st.button("Next: Go to Sentiment Bias Analysis", key="next_page_5", type="primary"):
+            st.session_state.current_step = 5
+            st.rerun()

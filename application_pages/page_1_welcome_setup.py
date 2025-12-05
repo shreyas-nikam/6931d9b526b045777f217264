@@ -4,8 +4,10 @@ import pandas as pd
 import os
 from utils import load_financial_data, create_dummy_data
 
+
 def main():
-    st.markdown("### Story: Welcome to the LLM Risk Assessment Workbench, Apex Financial Services Risk Manager")
+    st.markdown(
+        "### Story: Welcome to the LLM Risk Assessment Workbench, Apex Financial Services Risk Manager")
     st.markdown(
         """
         As a **Risk Manager** at Apex Financial Services, your mission is to rigorously evaluate the trustworthiness and reliability of our new LLM-powered financial summarization tool. 
@@ -25,7 +27,8 @@ def main():
         """
     )
 
-    st.markdown("### Real-World Problem: Mitigating LLM Hallucinations and Biases in Finance")
+    st.markdown(
+        "### Real-World Problem: Mitigating LLM Hallucinations and Biases in Finance")
     st.markdown(
         """
         Apex Financial Services aims to leverage Large Language Models (LLMs) to process vast amounts of financial news and reports, accelerating information flow for critical investment decisions. However, the inherent risks of LLMs – specifically **hallucinations** (factually incorrect but credible outputs) and **biases** (skewed interpretations or unfair representations) – pose significant threats. These emergent risks could lead to erroneous financial analyses, misinformed compliance strategies, and severe reputational damage. Your problem is to rigorously quantify these risks and formulate actionable mitigation strategies to ensure the LLM's outputs are accurate, fair, and reliable.
@@ -45,7 +48,8 @@ def main():
     if 'data' not in st.session_state:
         st.session_state.data = {}
     if 'current_step' not in st.session_state:
-        st.session_state.current_step = 0 # Start at step 0 (Welcome/Data Setup)
+        # Start at step 0 (Welcome/Data Setup)
+        st.session_state.current_step = 0
     if 'confidence_correlation' not in st.session_state:
         st.session_state.confidence_correlation = 0.0
     if 'overall_risk_summary' not in st.session_state:
@@ -54,18 +58,24 @@ def main():
         st.session_state.recommendations = []
 
     st.subheader("1. Data Loading and Initialization")
-    doc_uploader = st.file_uploader("Upload Financial Documents (JSON)", type=["json"], key="doc_uploader")
-    summary_uploader = st.file_uploader("Upload Ground Truth Summaries (CSV)", type=["csv"], key="summary_uploader")
-    facts_uploader = st.file_uploader("Upload Ground Truth Facts (CSV)", type=["csv"], key="facts_uploader")
+    doc_uploader = st.file_uploader("Upload Financial Documents (JSON)", type=[
+                                    "json"], key="doc_uploader")
+    summary_uploader = st.file_uploader("Upload Ground Truth Summaries (CSV)", type=[
+                                        "csv"], key="summary_uploader")
+    facts_uploader = st.file_uploader("Upload Ground Truth Facts (CSV)", type=[
+                                      "csv"], key="facts_uploader")
 
     if st.button("Load Data & Initialize", key="load_data_btn"):
         if doc_uploader and summary_uploader and facts_uploader:
             with st.spinner("Loading uploaded data..."):
                 # Save uploaded files temporarily
                 os.makedirs('uploaded_data', exist_ok=True)
-                doc_file_path = os.path.join('uploaded_data', doc_uploader.name)
-                summary_file_path = os.path.join('uploaded_data', summary_uploader.name)
-                facts_file_path = os.path.join('uploaded_data', facts_uploader.name)
+                doc_file_path = os.path.join(
+                    'uploaded_data', doc_uploader.name)
+                summary_file_path = os.path.join(
+                    'uploaded_data', summary_uploader.name)
+                facts_file_path = os.path.join(
+                    'uploaded_data', facts_uploader.name)
 
                 with open(doc_file_path, "wb") as f:
                     f.write(doc_uploader.getvalue())
@@ -73,28 +83,28 @@ def main():
                     f.write(summary_uploader.getvalue())
                 with open(facts_file_path, "wb") as f:
                     f.write(facts_uploader.getvalue())
-                
-                st.session_state.data = load_financial_data(doc_file_path, summary_file_path, facts_file_path)
-                st.success("Financial data loaded successfully from uploaded files!")
-                st.session_state.current_step = 1 # Move to next logical step
-                st.rerun()
+
+                st.session_state.data = load_financial_data(
+                    doc_file_path, summary_file_path, facts_file_path)
+                st.success(
+                    "Financial data loaded successfully from uploaded files!")
         else:
-            st.error("Please upload all required files to proceed with custom data.")
-            
+            st.error(
+                "Please upload all required files to proceed with custom data.")
+
     st.markdown("---")
     st.info("Or, for a quick demonstration without uploads:")
     if st.button("Generate Dummy Data (for demonstration)", key="dummy_data_btn"):
         with st.spinner("Generating dummy data..."):
             create_dummy_data()
-            st.session_state.data = load_financial_data('data/financial_documents.json', 'data/ground_truth_summaries.csv', 'data/ground_truth_facts.csv')
+            st.session_state.data = load_financial_data(
+                'data/financial_documents.json', 'data/ground_truth_summaries.csv', 'data/ground_truth_facts.csv')
             st.success("Dummy data loaded successfully!")
-            st.session_state.current_step = 1 # Move to next logical step
-            st.rerun()
 
     if st.session_state.data:
         st.markdown("### Preview of Loaded Financial Documents")
         st.markdown("As a Risk Manager, reviewing this data ensures that the dataset for our LLM evaluation is correctly ingested and structured, reflecting the real-world financial reports we aim to summarize.")
-        
+
         preview_df = pd.DataFrame([
             {'doc_id': k,
              'company': v['company'],
@@ -107,8 +117,12 @@ def main():
         ])
         st.dataframe(preview_df)
         st.markdown("---")
-        st.success("Data successfully prepared. You can now move to the next step to generate baseline LLM summaries.")
+        st.success(
+            "Data successfully prepared. You can now move to the next step to generate baseline LLM summaries.")
+
+        st.markdown("---")
+        if st.button("Next: Go to Baseline LLM Summaries", key="next_page_1", type="primary"):
+            st.session_state.current_step = 1
+            st.rerun()
     else:
         st.info("Upload data or generate dummy data to begin the LLM risk assessment.")
-
-
