@@ -39,7 +39,6 @@ def main():
     if st.button("Evaluate Confidence-Accuracy Correlation", key="eval_corr_btn"):
         with st.spinner("Calculating correlation and generating plot..."):
             st.session_state.confidence_evaluation_df, st.session_state.confidence_correlation, fig = evaluate_confidence_accuracy_correlation(st.session_state.data)
-            st.session_state.fig_confidence_accuracy = fig # Store the figure in session state
             st.success("Confidence-accuracy correlation evaluated!")
             st.session_state.current_step = 5 # Move to next logical step
             st.rerun()
@@ -53,10 +52,7 @@ def main():
             The red dashed line indicates a minimum acceptable accuracy threshold, helping to identify summaries that are both low confidence and low accuracy.
             """
         )
-        if 'fig_confidence_accuracy' in st.session_state:
-            st.pyplot(st.session_state.fig_confidence_accuracy)
-        else:
-            st.info("Click 'Evaluate Confidence-Accuracy Correlation' to see the plot.")
-        
-        st.metric("Confidence-Accuracy Correlation (Pearson r)", f"{st.session_state.confidence_correlation:.2f}")
-        st.markdown(f"The correlation between LLM confidence and actual accuracy is $r = {st.session_state.confidence_correlation:.2f}$. A low positive correlation here suggests the LLM's self-reported certainty is not a trustworthy indicator of its factual correctness, highlighting a significant oversight risk.")
+        st.pyplot(st.session_state.fig_confidence_accuracy if 'fig_confidence_accuracy' in st.session_state else plt.figure())
+        # Re-generate the plot to display it consistently. The function evaluate_confidence_accuracy_correlation returns the figure, so we need to store it in session state. 
+        # Or, just call the function again and display the fig.
+        # Given the instruction 
