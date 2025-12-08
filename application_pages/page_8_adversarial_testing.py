@@ -84,7 +84,7 @@ def main():
             """
         )
         for i, res in enumerate(st.session_state.data[adv_doc_id]['adversarial_test_results']):
-            st.subheader(f"--- Adversarial Test {i+1} ---")
+            st.subheader(f"Adversarial Test {i+1}")
             st.markdown(f"**Prompt:** `{res['prompt']}`")
             with st.expander("LLM Response"):
                 st.write(res['llm_summary'])
@@ -93,7 +93,7 @@ def main():
                              if "No specific issues detected" not in issue]
 
             if actual_issues:
-                st.warning("#### Identified Issues:")
+                st.markdown("#### Identified Issues:")
                 for issue in actual_issues:
                     st.markdown(f"- {issue}")
             else:

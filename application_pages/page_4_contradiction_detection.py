@@ -88,7 +88,7 @@ def main():
                 c for c in doc_data['contradictions'] if "No specific issues detected" not in c]
 
             if actual_contradictions_for_doc:
-                st.error("#### Identified Contradictions:")
+                st.markdown("**Identified Contradictions:**")
                 for i, contradiction in enumerate(actual_contradictions_for_doc):
                     st.markdown(f"- {contradiction}")
             else:

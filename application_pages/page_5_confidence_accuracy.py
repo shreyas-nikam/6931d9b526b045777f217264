@@ -49,7 +49,7 @@ def main():
             st.success("Confidence-accuracy correlation evaluated!")
 
     # Show results if confidence correlation has been calculated
-    if 'confidence_correlation' in st.session_state:
+    if 'confidence_correlation' in st.session_state and 'fig_confidence_accuracy' in st.session_state:
         st.markdown("### Confidence-Accuracy Correlation Results")
         st.markdown(
             """
@@ -58,13 +58,7 @@ def main():
             The red dashed line indicates a minimum acceptable accuracy threshold, helping to identify summaries that are both low confidence and low accuracy.
             """
         )
-        st.pyplot(
-            st.session_state.fig_confidence_accuracy if 'fig_confidence_accuracy' in st.session_state else plt.figure())
-
-        st.markdown(
-            f"**Confidence-Accuracy Correlation (Pearson r):** {st.session_state.confidence_correlation:.2f}")
-        st.markdown(
-            "A higher correlation indicates that the LLM's confidence scores are a reliable indicator of factual accuracy.")
+        st.pyplot(st.session_state.fig_confidence_accuracy)
 
         st.markdown("---")
         if st.button("Next: Go to Sentiment Bias Analysis", key="next_page_5", type="primary"):

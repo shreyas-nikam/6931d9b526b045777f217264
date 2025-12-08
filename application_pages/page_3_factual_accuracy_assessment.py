@@ -59,6 +59,7 @@ def main():
             return
 
         with st.spinner("Assessing factual accuracy..."):
+            calculation_details = []
             for doc_id, doc_data in st.session_state.data.items():
                 fact_assessment_results = extract_and_compare_facts(
                     doc_data['llm_summary_baseline'],
@@ -66,7 +67,52 @@ def main():
                     comparison_threshold
                 )
                 st.session_state.data[doc_id]['fact_assessment'] = fact_assessment_results
+
+                # Collect calculation details
+                total_facts = len(doc_data['ground_truth_facts'])
+                correct_facts = fact_assessment_results['correct_facts']
+                accuracy = fact_assessment_results['accuracy_score']
+                calculation_details.append({
+                    'Document ID': doc_id,
+                    'Company': doc_data['company'],
+                    'Correct Facts': correct_facts,
+                    'Total Ground Truth Facts': total_facts,
+                    'Calculation': f"{correct_facts} / {total_facts}",
+                    'Accuracy Score': f"{accuracy:.2f}"
+                })
+
             st.success("Factual accuracy assessment complete!")
+
+            # Show calculation breakdown
+            st.markdown("### Calculation Breakdown")
+            st.markdown("""
+                Below you can see how each factual accuracy score was calculated for each document:
+                - **Correct Facts**: Number of ground truth facts correctly identified in the LLM summary
+                - **Total Ground Truth Facts**: Total number of facts that should have been extracted
+                - **Accuracy Score**: Correct Facts ÷ Total Ground Truth Facts
+            """)
+            calc_df = pd.DataFrame(calculation_details)
+            st.dataframe(calc_df, use_container_width=True)
+
+            # Show overall calculation
+            total_correct = sum([d['fact_assessment']['correct_facts']
+                                for d in st.session_state.data.values()])
+            total_ground_truth = sum(
+                [len(d['ground_truth_facts']) for d in st.session_state.data.values()])
+            overall_avg = np.mean([d['fact_assessment']['accuracy_score']
+                                  for d in st.session_state.data.values()])
+
+            st.markdown("### Overall Calculation")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Correct Facts", total_correct)
+            with col2:
+                st.metric("Total Ground Truth Facts", total_ground_truth)
+            with col3:
+                st.metric("Average Accuracy", f"{overall_avg:.2f}")
+
+            st.info(
+                f"**Overall Average Calculation**: Sum of all accuracy scores / Number of documents = {overall_avg:.2f}")
 
     # Show results if fact assessments exist
     if all('fact_assessment' in d for d in st.session_state.data.values()):

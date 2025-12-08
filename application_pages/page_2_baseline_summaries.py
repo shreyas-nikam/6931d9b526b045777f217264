@@ -37,13 +37,10 @@ def main():
     )
 
     st.subheader("1. Generate Baseline Summaries")
-    # Initialize baseline_prompt_input in session_state if not present
-    if 'baseline_prompt_input' not in st.session_state:
-        st.session_state.baseline_prompt_input = "Summarize the following financial document concisely: \n\n{document_text}"
 
     baseline_prompt = st.text_area(
         "Baseline Prompt Template",
-        value=st.session_state.baseline_prompt_input,
+        value="Summarize the following financial document concisely: \n\n{document_text}",
         height=100,
         key="baseline_prompt_input"
     )

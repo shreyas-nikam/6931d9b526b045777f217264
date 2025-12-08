@@ -297,8 +297,18 @@ def evaluate_confidence_accuracy_correlation(data_collection: dict) -> tuple[pd.
     confidence_df = pd.DataFrame(
         {'confidence': confidence_scores, 'accuracy': accuracy_scores})
 
-    correlation = confidence_df['confidence'].corr(
-        confidence_df['accuracy']) if not confidence_df.empty else 0
+    # Calculate correlation with proper handling of edge cases
+    if confidence_df.empty or len(confidence_df) < 2:
+        correlation = 0.0
+    elif confidence_df['confidence'].std() == 0 or confidence_df['accuracy'].std() == 0:
+        # If either variable has no variance, correlation is undefined
+        correlation = 0.0
+    else:
+        correlation = confidence_df['confidence'].corr(
+            confidence_df['accuracy'])
+        # Replace NaN with 0 if correlation calculation fails
+        if pd.isna(correlation):
+            correlation = 0.0
 
     fig, ax = plt.subplots(figsize=(8, 6))
     if not confidence_df.empty:

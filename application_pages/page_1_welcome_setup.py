@@ -40,7 +40,7 @@ def main():
         """
         To begin our assessment, we need to load the financial data that the LLM will summarize and the corresponding human-verified ground truth data against which we will evaluate the LLM's performance. 
         As a Risk Manager, ensuring the integrity and representativeness of this initial dataset is foundational to a robust risk assessment. 
-        This page allows you to either upload your own datasets or generate a set of dummy data to quickly proceed with the demonstration.
+        This page allows you to generate a set of dummy data to quickly proceed with the demonstration.
         """
     )
 
@@ -58,42 +58,7 @@ def main():
         st.session_state.recommendations = []
 
     st.subheader("1. Data Loading and Initialization")
-    doc_uploader = st.file_uploader("Upload Financial Documents (JSON)", type=[
-                                    "json"], key="doc_uploader")
-    summary_uploader = st.file_uploader("Upload Ground Truth Summaries (CSV)", type=[
-                                        "csv"], key="summary_uploader")
-    facts_uploader = st.file_uploader("Upload Ground Truth Facts (CSV)", type=[
-                                      "csv"], key="facts_uploader")
-
-    if st.button("Load Data & Initialize", key="load_data_btn"):
-        if doc_uploader and summary_uploader and facts_uploader:
-            with st.spinner("Loading uploaded data..."):
-                # Save uploaded files temporarily
-                os.makedirs('uploaded_data', exist_ok=True)
-                doc_file_path = os.path.join(
-                    'uploaded_data', doc_uploader.name)
-                summary_file_path = os.path.join(
-                    'uploaded_data', summary_uploader.name)
-                facts_file_path = os.path.join(
-                    'uploaded_data', facts_uploader.name)
-
-                with open(doc_file_path, "wb") as f:
-                    f.write(doc_uploader.getvalue())
-                with open(summary_file_path, "wb") as f:
-                    f.write(summary_uploader.getvalue())
-                with open(facts_file_path, "wb") as f:
-                    f.write(facts_uploader.getvalue())
-
-                st.session_state.data = load_financial_data(
-                    doc_file_path, summary_file_path, facts_file_path)
-                st.success(
-                    "Financial data loaded successfully from uploaded files!")
-        else:
-            st.error(
-                "Please upload all required files to proceed with custom data.")
-
-    st.markdown("---")
-    st.info("Or, for a quick demonstration without uploads:")
+    st.info("Generate a quick dummy data set for demonstration purposes:")
     if st.button("Generate Dummy Data (for demonstration)", key="dummy_data_btn"):
         with st.spinner("Generating dummy data..."):
             create_dummy_data()
