@@ -90,4 +90,4 @@ def main():
             st.session_state.current_step = 1
             st.rerun()
     else:
-        st.info("Upload data or generate dummy data to begin the LLM risk assessment.")
+        pass

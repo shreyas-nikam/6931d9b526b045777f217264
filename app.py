@@ -7,19 +7,6 @@ st.sidebar.divider()
 st.title("QuLab: LLM Risk Assessment for Financial Summaries")
 st.divider()
 
-st.markdown(
-    """
-    Welcome to the **LLM Risk Assessment Workbench**, designed for **Risk Managers** at Apex Financial Services. 
-    In today's fast-paced financial world, leveraging AI for tasks like summarizing financial reports is essential, but it comes with inherent risks.
-    This application guides you through a comprehensive, story-driven workflow to evaluate the trustworthiness and reliability of our LLM-powered financial summarization tool.
-    
-    **Your Role:** You will navigate through crucial steps, from initial data setup to generating a final risk report, addressing real-world challenges such as mitigating LLM hallucinations and biases.
-    
-    **The Problem:** LLMs can produce factually incorrect (hallucinations) or skewed (biased) outputs, leading to erroneous financial analyses, misinformed compliance strategies, and severe reputational damage.
-    
-    **The Solution:** This app provides interactive tools to quantify these risks, allowing you to make data-driven decisions and formulate actionable mitigation strategies, ensuring our AI deployments are robust, fair, and compliant.
-    """
-)
 
 # Define page names for navigation
 page_names = [
@@ -37,7 +24,8 @@ page_names = [
 ]
 
 # Navigation selectbox
-page = st.sidebar.selectbox(label="Navigation", options=page_names, index=st.session_state.get("current_step", 0))
+page = st.sidebar.selectbox(
+    label="Navigation", options=page_names, index=st.session_state.get("current_step", 0))
 
 # Update session state based on selected page for consistent flow
 # This ensures that if a user directly selects a page, the current_step reflects it.
